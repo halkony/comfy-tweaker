@@ -32,6 +32,9 @@ MANIFEST
 *.manifest
 # *.spec
 
+# ignore mkdocs builds
+docs/site
+
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
