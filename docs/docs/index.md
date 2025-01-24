@@ -14,11 +14,11 @@
 [![Patreon][patreon-shield]][patreon-url]
 
 [discord-shield]: https://img.shields.io/discord/895430371972358185?style=flat-square&logo=Discord&label=Discord
-[discord-url]: https%3A%2F%2Fdiscord.gg%2F9QeqHvAd8r
+[discord-url]: https://discord.gg/d8evRQ2zTK
 [patreon-shield]: https://img.shields.io/badge/Patreon-orange?style=flat-square&logo=patreon&logoSize=auto
-[patreon-url]:https%3A%2Fpatreon.com%2Fcomfytweaker
+[patreon-url]:https://patreon.com%/comfytweaker
 [docs-shield]: https://img.shields.io/badge/Docs-blue?style=flat-square&logo=gitbook&logoSize=auto
-[docs-url]: https://google.com
+[docs-url]: https://halkony.github.io/comfy-tweaker/
 
 
 Comfy Tweaker is a ComfyUI companion app for generating massive amounts of images with precise, user-defined tweaks.
@@ -48,13 +48,16 @@ It is ideal for:
 ## Installation
 Download the latest .exe under [releases.](https://github.com/halkony/comfy-tweaker/releases)
 
-Check out the quickstart guide in the docs to get started.
-
-## Troubleshooting
-- Windows users should ensure that the paths in their tweaks files use forward slashes.
-- This repo has not been tested on Linux yet. If the released .exe doesn't work, try cloning this repo and running
+If you don't want to run the .exe or you are on Linux, you can install comfy-tweaker from source.
 ```py
+git clone https://github.com/halkony/comfy-tweaker
+cd comfy-tweaker
 pip install -r ./requirements/base.txt
 pip install .
 comfy-tweaker
 ```
+
+Check out the [quickstart guide](https://halkony.github.io/comfy-tweaker/quickstart/) in the docs to get started.
+
+## Troubleshooting
+- Windows users should ensure that the paths in their tweaks files use forward slashes.
