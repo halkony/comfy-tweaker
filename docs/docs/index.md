@@ -13,7 +13,9 @@
 [![Discord][discord-shield]][discord-url]
 [![Patreon][patreon-shield]][patreon-url]
 
-![Comfy Tweaker Demo](https://i.imgur.com/f1opY2J.gif)
+<div align="center">
+  <img src="https://i.imgur.com/f1opY2J.gif" alt="Comfy Tweaker Demo">
+</div>
 
 [discord-shield]: https://img.shields.io/discord/895430371972358185?style=flat-square&logo=Discord&label=Discord
 [discord-url]: https://discord.gg/d8evRQ2zTK
