@@ -1,8 +1,12 @@
 # Useful Examples
 
-The use of jinja in tweaks files adds a lot of flexibility. Here are some advanced examples of common tasks being automated with jinja.
+The use of Jinja in tweaks files adds a lot of flexibility. Here are some advanced examples of common tasks being automated with Jinja.
 
 ## Generating an XY Matrix
+Set the variables at the beginning of this tweak depending on your needs.
+
+You'll have to calculate for yourself how many jobs to generate. The example below would need 100 images to be fully generated.
+
 ```yaml
 {#
 Basic XY matrix example.
