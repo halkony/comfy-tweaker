@@ -1,45 +1,24 @@
+<div align="center">
 <p align="center">
   <img src="https://i.imgur.com/Lhy3ldn.png" alt="Comfy Tweaker Logo" width="200" height="200">
 </p>
 <h1 align="center">Comfy Tweaker</h1>
 <div style="display: flex; gap: 5px; justify-content: center;">
-<a align="center" href="https://www.patreon.com/bePatron?u=70591568" style="
-    display: inline-block;
-    padding: 5px 10px;
-    font-size: 12px;
-    color: white;
-    background-color:rgb(35, 18, 165);
-    border-radius: 5px;
-    text-decoration: none;
-    text-align: center;
-">
-    Docs
-</a>
-<a align="center" href="https://discord.gg/9QeqHvAd8r" style="
-    display: inline-block;
-    padding: 5px 10px;
-    font-size: 12px;
-    color: white;
-    background-color:rgb(159, 35, 248);
-    border-radius: 5px;
-    text-decoration: none;
-    text-align: center;
-">
-    Discord
-</a>
-<a align="center" href="https://www.patreon.com/bePatron?u=70591568" style="
-    display: inline-block;
-    padding: 5px 10px;
-    font-size: 12px;
-    color: white;
-    background-color: #f96854;
-    border-radius: 5px;
-    text-decoration: none;
-    text-align: center;
-">
-    Support on Patreon
-</a>
+<br>
+
 </div>
+</div>
+
+[![Docs][docs-shield]][docs-url]
+[![Discord][discord-shield]][discord-url]
+[![Patreon][patreon-shield]][patreon-url]
+
+[discord-shield]: https://img.shields.io/discord/895430371972358185?style=flat-square&logo=Discord&label=Discord
+[discord-url]: https%3A%2F%2Fdiscord.gg%2F9QeqHvAd8r
+[patreon-shield]: https://img.shields.io/badge/Patreon-orange?style=flat-square&logo=patreon&logoSize=auto
+[patreon-url]:https%3A%2Fpatreon.com%2Fcomfytweaker
+[docs-shield]: https://img.shields.io/badge/Docs-blue?style=flat-square&logo=gitbook&logoSize=auto
+[docs-url]: https://google.com
 
 
 Comfy Tweaker is a ComfyUI companion app for generating massive amounts of images with precise, user-defined tweaks.
