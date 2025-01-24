@@ -11,6 +11,8 @@ import traceback
 from concurrent.futures import ThreadPoolExecutor
 from copy import copy
 
+from loguru import logger
+
 import qdarktheme
 from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtCore import QAbstractTableModel, Qt, QTimer
@@ -38,28 +40,13 @@ class QTextEditLogger(logging.Handler):
         self.text_edit = text_edit
 
     def emit(self, record):
-        msg = self.format(record)
+        # msg = self.format(record)
+        msg = record.getMessage()
         cursor = self.text_edit.textCursor()
         cursor.movePosition(QtGui.QTextCursor.End)
         cursor.insertText(msg + "\n")
         self.text_edit.setTextCursor(cursor)
         self.text_edit.ensureCursorVisible()
-
-
-class StreamToLogger:
-    """Custom stream to redirect stdout to a logger."""
-
-    def __init__(self, logger, log_level=logging.INFO):
-        self.logger = logger
-        self.log_level = log_level
-        self.linebuf = ""
-
-    def write(self, buf):
-        for line in buf.rstrip().splitlines():
-            self.logger.log(self.log_level, line.rstrip())
-
-    def flush(self):
-        pass
 
 
 SUPPORTERS = ["tohoco", "sourjck"]
@@ -150,7 +137,7 @@ class PreferencesDialog(QtWidgets.QDialog):
         self.ui.closeButton.clicked.connect(self.reject)
 
     def browse_for_folder(self, line_edit, settings_key):
-        print(f"Browsing for f{settings_key} folder..")
+        logger.info(f"Browsing for f{settings_key} folder..")
         folder_path = QFileDialog.getExistingDirectory(
             self, "Select Folder", dir=self.settings.get(settings_key, "")
         )
@@ -271,18 +258,13 @@ class TweakerApp(QtWidgets.QMainWindow):
 
         # Set up logging
         log_handler = QTextEditLogger(self.ui.logTextEdit)
-        log_handler.setFormatter(
-            logging.Formatter("%(asctime)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
-        )
-        logging.getLogger().addHandler(log_handler)
-        logging.getLogger().setLevel(logging.INFO)
-
         # Redirect stdout to logger and console
         # We'll change this back when we find a way to print to both console and our app
-        sys.stdout = StreamToLogger(logging.getLogger(), logging.INFO)
-
+        # sys.stdout = StreamToLogger(logging.getLogger(), logging.INFO)
+        log_format = "{time:MM/DD/YYYY HH:mm:ss} - {level} - {message}"
+        logger.add(log_handler, format=log_format)
         self.ui.queueStartButton.clicked.connect(self.handle_start_queue)
-        print("Application successfully started")
+        logger.info("Application successfully started")
 
         # Connect workflowBrowseButton to the file browse function
         self.ui.workflowBrowseButton.clicked.connect(self.browse_and_load_image)
@@ -446,7 +428,7 @@ class TweakerApp(QtWidgets.QMainWindow):
         rows = set(index.row() for index in selected_indexes)
         for row in sorted(rows, reverse=True):
             self.job_queue.remove(self.jobTableModel.jobs[row].id)
-        print(f"Removed {len(rows)} jobs.")
+        logger.info(f"Removed {len(rows)} jobs.")
         self.update_job_table()
 
     def clear_job_queue(self):
@@ -454,7 +436,7 @@ class TweakerApp(QtWidgets.QMainWindow):
         self.update_job_table()
 
     def stop_queue(self):
-        print("Stopping the job queue after finishing current job...")
+        logger.info("Stopping the job queue after finishing current job...")
         self.job_queue.stop()
         # self.ui.queueStopButton.setEnabled(False)
 
@@ -493,8 +475,8 @@ class TweakerApp(QtWidgets.QMainWindow):
 
     @asyncSlot()
     async def start_queue(self):
-        print("Starting the job queue...")
-        print("Checking for comfyui connection...")
+        logger.info("Starting the job queue...")
+        logger.info("Checking for comfyui connection...")
         connected = await check_if_connected()
         if not connected:
             QMessageBox.critical(
@@ -569,7 +551,7 @@ class TweakerApp(QtWidgets.QMainWindow):
                         self.ui.imageGenerationPreview.setPixmap(pixmap)
                     else:
                         # Handle the case where pixmap loading fails
-                        print("Failed to load pixmap from image bytes")
+                        logger.info("Failed to load pixmap from image bytes")
             except IndexError:
                 pass
 
@@ -625,7 +607,7 @@ class TweakerApp(QtWidgets.QMainWindow):
                 self.ui.amountSpinBox.value(),
             )
             self.update_job_table()
-            print(
+            logger.info(
                 f"{self.job_queue.queue[-1].workflow.name} with {self.job_queue.queue[-1].tweaks.name} added to the queue."
             )
         except Exception as e:
@@ -744,18 +726,13 @@ def entry():
 
 
 from appdirs import user_data_dir
-from datetime import datetime
 
 if __name__ == "__main__":
     data_dir = user_data_dir("ComfyTweaker", "ComfyTweaker", roaming=True)
+    logger.add(os.path.join(data_dir, "logs/comfytweaker_{time}.log"))
+    logger.add(sys.stdout)
     try:
         asyncio.run(main())
     except Exception as e:
-        traceback.print_exc()
-        current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        with open(os.path.join(data_dir, f"error{current_time}.log"), "w") as f:
-            f.write("Exception occurred:\n")
-            traceback.print_exc(file=f)
-            f.write("\nFull stack trace:\n")
-            traceback.print_stack(file=f)
-        print(f"Error log saved to {data_dir}")
+        logger.critical(f"Exception occurred: {e}")
+        logger.critical(traceback.format_exc())

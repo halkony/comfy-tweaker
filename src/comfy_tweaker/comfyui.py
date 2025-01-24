@@ -1,6 +1,8 @@
 #This is an example that uses the websockets api to know when a prompt execution is done
 #Once the prompt execution is done it downloads the images using the /history endpoint
 
+from loguru import logger
+
 import asyncio
 import json
 import os
@@ -61,7 +63,7 @@ def generate_images(ws, job):
             if message['type'] == 'executing':
                 data = message['data']
                 if data['node'] is None and data['prompt_id'] == prompt_id:
-                    print("Prompt is done executing.")
+                    logger.info("Prompt is done executing.")
                     break #Execution is done
 
         else:
@@ -92,7 +94,7 @@ def generate_images(ws, job):
                 # this wave of writing out the metadata requires loading the image into memory
                 # this takes a long time with 4096x4096 images but is fine for general use
                 gui_workflow_data = json.dumps(workflow.gui_workflow)
-                print(f"Adding GUI Workflow data to the resulting image {image['filename']}...")
+                logger.info(f"Adding GUI Workflow data to the resulting image {image['filename']}...")
 
                 # we need a lock on the file because when comfyUI is working quickly,
                 # it can say a job is done but still be writing to a file
@@ -107,7 +109,7 @@ def generate_images(ws, job):
                             metadata.add_text(k, v)
                         img.save(image_path, "PNG", pnginfo=metadata)
                 except Timeout:
-                    print(f"Failed to acquire lock for {image_path}. Image taking too long to write?")
+                    logger.info(f"Failed to acquire lock for {image_path}. Image taking too long to write?")
                     break
 
                 # this feels naughty in the ComfyUI module, but im not sure how

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import comfy_tweaker.filters as filters
+from loguru import logger
 
 __version__ = "0.1.2"
 
@@ -151,26 +152,26 @@ class JobQueue:
     async def start(self):
         """Starts a queue that is not currently in progress."""
         with self._running_thread_lock:
-            print("Starting queue...")
+            logger.info("Starting queue...")
             self._stop_event.clear()
             while self.queue:
                 try:
                     job = self.queue[0]
                     if self._stop_event.is_set():
-                        print("The queue is paused. Waiting for resume.")
+                        logger.info("The queue is paused. Waiting for resume.")
                         return
                     # run the workflow
-                    print("Sending workflow to server...")
+                    logger.info("Sending workflow to server...")
                     for i in range(job.remaining):
                         if not self.queue:
                             break
                         if self._stop_event.is_set():
-                            print("The queue is paused. Waiting for resume.")
+                            logger.info("The queue is paused. Waiting for resume.")
                             job.status = JobStatus.PENDING
                             while self._stop_event.is_set():
                                 await asyncio.sleep(1)
                         if self.queue[0] != job:
-                            print("Job no longer at front of queue. Breaking out of loop...")
+                            logger.info("Job no longer at front of queue. Breaking out of loop...")
                             job.status = JobStatus.PENDING
                             break
                         job.status = JobStatus.IN_PROGRESS
@@ -178,12 +179,12 @@ class JobQueue:
                         job.workflow = job.original_workflow.apply_tweaks(job.tweaks)
                         # regenerate the tweaks for new random values and to add one to iteration
                         job.tweaks = job.tweaks.regenerate()
-                        print(f"Running job ({job.progress + 1}/{job.amount})...")
+                        logger.info(f"Running job ({job.progress + 1}/{job.amount})...")
                         await asyncio.to_thread(send_job_to_server, job)
                         job.progress = i + 1
                         end_time = time.time()
                         elapsed_time = timedelta(seconds=end_time - start_time)
-                        print(f"Total time taken: {elapsed_time}")
+                        logger.info(f"Total time taken: {elapsed_time}")
                     else:
                         job.progress = job.amount
                         job.status = JobStatus.COMPLETED
@@ -191,13 +192,13 @@ class JobQueue:
                 except Exception as e:
                     traceback.print_exc()
                     job.status = JobStatus.FAILED
-                    print(f"Job failed with error: {e}")
-                    print("Stopping the queue...")
+                    logger.info(f"Job failed with error: {e}")
+                    logger.info("Stopping the queue...")
                     traceback.print_exc()
                     self.history.append(self.queue.pop(0))
                     self.stop()
                     return
-            print("Queue completed.")
+            logger.info("Queue completed.")
 
     def stop(self):
         """Stops the queue, preventing further processing after the current job has been completed."""
@@ -300,7 +301,7 @@ class Workflow:
             # print("Tweaks are valid with this workflow.")
         except Exception as e:
             traceback.print_exc()
-            print(f"Error validating tweaks: {type(e).__name__} {e}")
+            logger.error(f"Error validating tweaks: {type(e).__name__} {e}")
             raise e
 
     def apply_tweaks(self, tweaks):

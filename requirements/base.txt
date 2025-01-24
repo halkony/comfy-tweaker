@@ -10,3 +10,4 @@ aiohttp
 filelock
 pillow
 websocket_client
+loguru
