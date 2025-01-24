@@ -35,10 +35,6 @@ tweaks:
       changes:
         model_strength: {{ lora2_strength(iteration) }}
     - selector:
-        name: "KSampler"
-      changes:
-        seed: {{random_seed()}}
-    - selector:
         name: "Save Image"
       changes:
         prefix : "lora1_{{ lora1_strength(iteration) }}_lora2_{{ lora2_strength(iteration) }}_image"
