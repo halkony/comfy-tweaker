@@ -279,7 +279,7 @@ class TweakerApp(QtWidgets.QMainWindow):
 
         # Redirect stdout to logger and console
         # We'll change this back when we find a way to print to both console and our app
-        # sys.stdout = StreamToLogger(logging.getLogger(), logging.INFO)
+        sys.stdout = StreamToLogger(logging.getLogger(), logging.INFO)
 
         self.ui.queueStartButton.clicked.connect(self.handle_start_queue)
         print("Application successfully started")
