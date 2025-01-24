@@ -310,7 +310,7 @@ def from_folder(
 
 def wildcards(text):
     """
-    Replaces stable diffusion style wildcards within a piece of text. The directory for file wildcards is in the environment variable `WILDCARDS_DIRECTORY`.
+    Replaces stable diffusion style wildcards within a piece of text. The directory for file wildcards is in the environment variable `WILDCARDS_DIRECTORY`, which you can set under `Edit>Preferences` in the UI.
 
     Example:
     ```yaml
