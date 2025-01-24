@@ -5,16 +5,15 @@
 <h1 align="center">Comfy Tweaker</h1>
 <div style="display: flex; gap: 5px; justify-content: center;">
 <br>
+</div>
+</div>
 
-</div>
-</div>
 
 [![Docs][docs-shield]][docs-url]
 [![Discord][discord-shield]][discord-url]
 [![Patreon][patreon-shield]][patreon-url]
 
-![Comfy Tweaker Demo](https://i.imgur.com/WdGP9cn.gif)
-
+![Comfy Tweaker Demo](https://i.imgur.com/f1opY2J.gif)
 
 [discord-shield]: https://img.shields.io/discord/895430371972358185?style=flat-square&logo=Discord&label=Discord
 [discord-url]: https://discord.gg/d8evRQ2zTK
