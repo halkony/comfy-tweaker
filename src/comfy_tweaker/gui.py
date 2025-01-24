@@ -313,11 +313,12 @@ class TweakerApp(QtWidgets.QMainWindow):
         self.timer.timeout.connect(self.update_job_table)
         self.timer.start(1000)
 
-        # Set up a QTimer to call update_job_table regularly
-        self.comfyui_timer = QTimer(self)
-        self.comfyui_timer.timeout.connect(self.update_comfyui_connected)
-        self.comfyui_timer.start(2000)  # Update every 5 seconds
-        self.update_comfyui_connected()
+        # # Set up a QTimer to call update_job_table regularly
+        # self.comfyui_timer = QTimer(self)
+        # self.comfyui_timer.timeout.connect(self.update_comfyui_connected)
+        # self.comfyui_timer.start(2000)  # Update every 5 seconds
+        # self.update_comfyui_connected()
+        self.ui.comfyUIConnectedLabel.setText("")
 
         self.image_generation_preview_timer = QTimer(self)
         self.image_generation_preview_timer.timeout.connect(
@@ -457,22 +458,22 @@ class TweakerApp(QtWidgets.QMainWindow):
         self.job_queue.stop()
         # self.ui.queueStopButton.setEnabled(False)
 
-    @asyncSlot()
-    async def update_comfyui_connected(self):
-        """If we're connected, enable start butotn, otherwise disable."""
-        try:
-            connected = await check_if_connected()
-        except RuntimeError as e:
-            if "no running event loop" in str(e).lower():
-                return
-            else:
-                raise e
-        if connected:
-            self.ui.comfyUIConnectedLabel.setText("ComfyUI Connected")
-            self.ui.queueStartButton.setEnabled(True)
-        else:
-            self.ui.comfyUIConnectedLabel.setText("ComfyUI Not Connected")
-            self.ui.queueStartButton.setEnabled(False)
+    # @asyncSlot()
+    # async def update_comfyui_connected(self):
+    #     """If we're connected, enable start button, otherwise disable."""
+    #     try:
+    #         connected = await check_if_connected()
+    #     except RuntimeError as e:
+    #         if "no running event loop" in str(e).lower():
+    #             return
+    #         else:
+    #             raise e
+    #     if connected:
+    #         self.ui.comfyUIConnectedLabel.setText("ComfyUI Connected")
+    #         self.ui.queueStartButton.setEnabled(True)
+    #     else:
+    #         self.ui.comfyUIConnectedLabel.setText("ComfyUI Not Connected")
+    #         self.ui.queueStartButton.setEnabled(False)
 
     def validate_comfyui_folder(self):
         comfyui_folder = self.settings.get("comfy_ui_folder")
@@ -493,6 +494,15 @@ class TweakerApp(QtWidgets.QMainWindow):
     @asyncSlot()
     async def start_queue(self):
         print("Starting the job queue...")
+        print("Checking for comfyui connection...")
+        connected = await check_if_connected()
+        if not connected:
+            QMessageBox.critical(
+                self,
+                "ComfyUI Not Connected",
+                "Could not connect to comfyui server. Please check your comfyui server address in preferences.",
+            )
+            return
         self.update_environment_variables()
         self.validate_comfyui_folder()
         if not self.job_queue.queue:

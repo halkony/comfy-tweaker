@@ -269,7 +269,7 @@ class Ui_MainWindow(object):
 
         self.queueStartButton = QPushButton(self.widget)
         self.queueStartButton.setObjectName(u"queueStartButton")
-        self.queueStartButton.setEnabled(False)
+        self.queueStartButton.setEnabled(True)
         sizePolicy5.setHeightForWidth(self.queueStartButton.sizePolicy().hasHeightForWidth())
         self.queueStartButton.setSizePolicy(sizePolicy5)
         self.queueStartButton.setMinimumSize(QSize(80, 0))

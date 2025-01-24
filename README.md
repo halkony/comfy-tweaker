@@ -13,6 +13,9 @@
 [![Discord][discord-shield]][discord-url]
 [![Patreon][patreon-shield]][patreon-url]
 
+![Comfy Tweaker Demo](https://i.imgur.com/WdGP9cn.gif)
+
+
 [discord-shield]: https://img.shields.io/discord/895430371972358185?style=flat-square&logo=Discord&label=Discord
 [discord-url]: https://discord.gg/d8evRQ2zTK
 [patreon-shield]: https://img.shields.io/badge/Patreon-orange?style=flat-square&logo=patreon&logoSize=auto
