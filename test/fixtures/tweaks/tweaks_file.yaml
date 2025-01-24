@@ -1,0 +1,9 @@
+tweaks:
+  - selector:
+      id: "3"
+    changes:
+      text: "An old man on a park bench"
+  - selector:
+      id: "2"
+    changes:
+      seed: {{random_seed()}}

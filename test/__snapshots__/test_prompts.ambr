@@ -1,0 +1,7 @@
+# serializer version: 1
+# name: test_prompt_recipe
+  None
+# ---
+# name: test_prompt_recipe.1
+  'A dog sleeping in a chair.'
+# ---

@@ -1,0 +1,12 @@
+jinja2
+pandas
+PySide6
+pyqtdarktheme
+qasync
+PyYAML
+appdirs
+regex
+aiohttp
+filelock
+pillow
+websocket_client
