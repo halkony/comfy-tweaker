@@ -359,6 +359,18 @@ def test_can_regex_match_to_lora_names(models_directory):
         "test2.safetensors",
     ]
 
+def test_can_generate_tweaks_with_an_iterator():
+    tweaks_yaml = """
+    tweaks:
+        - selector:
+            id: 346
+          changes:
+            lora_strength: {{ iteration }}
+    """
+    tweaks = tweaker.Tweaks.from_yaml(tweaks_yaml)
+    for i in range(200):
+        assert tweaks.tweaks[0].changes["lora_strength"] == i
+        tweaks = tweaks.regenerate()
 
 @pytest.mark.skip("Mocker not functional")
 @pytest.mark.asyncio

@@ -359,6 +359,7 @@ class Tweaks:
     tweaks: list[Tweak] = field(default_factory=list)
     name: str = "Default Tweaks"
     _original_yaml: str = field(default="")
+    _iteration: int = field(default=0)
 
     def regenerate(self):
         """Regenerates the tweaks from the original yaml. Call this function if you want regenerate random numbers or selections.
@@ -366,7 +367,7 @@ class Tweaks:
         Returns:
             Tweaks: a new Tweaks object with the same tweaks as the original with all random values regenerated
         """
-        return Tweaks.from_yaml(self._original_yaml, name=self.name)
+        return Tweaks.from_yaml(self._original_yaml, name=self.name, iteration=self._iteration + 1)
 
     def save(self, tweaks_file_path):
         """Save the tweaks to a yaml file.
@@ -382,8 +383,8 @@ class Tweaks:
         return Tweaks(self.tweaks + [tweak])
 
     @classmethod
-    def from_yaml(cls, yaml_string, name="Default Tweaks"):
-        """Import tweaks from a yaml string."""
+    def from_yaml(cls, yaml_string, name="Default Tweaks", iteration=0):
+        """Import tweaks from a yaml string. The iteration key argument is a custom variable passed into the yaml. This way people can use jinja to modify their workflows."""
         env = Environment()
         env.globals["random_float"] = filters.random_float
         env.globals["random_int"] = filters.random_int
@@ -401,10 +402,11 @@ class Tweaks:
         env.filters["match"] = filters.match
         env.filters["as_image"] = filters.as_image
         env.filters["regex_match"] = filters.regex_match
+        env.globals["iteration"] = iteration
         if yaml_string:
             template = env.from_string(yaml_string)
             rendered_yaml = safe_load(template.render())
-            result = cls([Tweak(tweak["selector"], tweak["changes"]) for tweak in rendered_yaml["tweaks"]], name=name, _original_yaml=yaml_string)
+            result = cls([Tweak(tweak["selector"], tweak["changes"]) for tweak in rendered_yaml["tweaks"]], name=name, _original_yaml=yaml_string, _iteration=iteration)
         else:
             result = cls(name=name)
         return result
