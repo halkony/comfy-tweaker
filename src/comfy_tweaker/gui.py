@@ -83,9 +83,9 @@ class SupportersDialog(QtWidgets.QDialog):
             new_text = label.text() + f"{supporter}\n"
             label.setText(new_text)
 
-        pixmap = QtGui.QPixmap(
-            os.path.join(os.path.dirname(comfy_tweaker.__file__), "icons", "patreon.png")
-        )
+        script_dir = os.path.dirname(__file__)
+        icon_path = os.path.join(script_dir, "icons", "patreon.png")
+        pixmap = QtGui.QPixmap(icon_path)
         pixmap = pixmap.scaled(200, 200, QtCore.Qt.KeepAspectRatio)
         self.ui.patreonLogo.setPixmap(pixmap)
         clickable_elements = [
@@ -219,9 +219,8 @@ class JobTableModel(QAbstractTableModel):
 
     def create_job_icon(self, job):
         status = str(job.status.value).lower()
-        icon_path = os.path.join(
-            os.path.dirname(comfy_tweaker.__file__), "icons", f"{status}.png"
-        )
+        script_dir = os.path.dirname(__file__)
+        icon_path = os.path.join(script_dir, "icons", f"{status}.png")
         icon = QtGui.QIcon(icon_path)
         return icon
 
@@ -264,11 +263,9 @@ class TweakerApp(QtWidgets.QMainWindow):
         # we have to start at 1 or the progress bar will be in an
         # indeterminate state on launch, which looks ugly
         self.starting_job_count = 1
-        self.setWindowIcon(
-            QtGui.QIcon(
-                os.path.join(os.path.dirname(comfy_tweaker.__file__), "icons", f"window.png")
-            )
-        )
+        script_dir = os.path.dirname(__file__)
+        icon_path = os.path.join(script_dir, "icons", "window.png")
+        self.setWindowIcon(QtGui.QIcon(icon_path))
         self.update_job_table_lock = threading.Lock()
         self.setWindowTitle(f"Comfy Tweaker {comfy_tweaker.__version__}")
 
@@ -477,21 +474,31 @@ class TweakerApp(QtWidgets.QMainWindow):
             self.ui.comfyUIConnectedLabel.setText("ComfyUI Not Connected")
             self.ui.queueStartButton.setEnabled(False)
 
+    def validate_comfyui_folder(self):
+        comfyui_folder = self.settings.get("comfy_ui_folder")
+        if not os.path.exists(os.path.join(comfyui_folder, "output")) or not os.path.exists(
+            os.path.join(comfyui_folder, "input")
+        ):
+            QMessageBox.critical(
+                self,
+                "Invalid ComfyUI Folder",
+                "The comfyui folder does not contain the expected 'output' and 'input' folders.",
+            )
+            raise ValueError(
+                "The comfyui folder does not contain the output and input folders."
+            )
+        if not comfyui_folder:
+            raise ValueError("ComfyUI folder is not set.")
+
     @asyncSlot()
     async def start_queue(self):
         print("Starting the job queue...")
         self.update_environment_variables()
+        self.validate_comfyui_folder()
         if not self.job_queue.queue:
             msg_box = QMessageBox(self)
             msg_box.setIcon(QMessageBox.Critical)
             msg_box.setText("No jobs in the queue.")
-            msg_box.setStandardButtons(QMessageBox.Ok)
-            msg_box.show()
-            return
-        if not os.environ.get("COMFYUI_OUTPUT_FOLDER"):
-            msg_box = QMessageBox(self)
-            msg_box.setIcon(QMessageBox.Critical)
-            msg_box.setText("Set your root ComfyUI folder in Preferences first. (The one that contains the output and input folders).")
             msg_box.setStandardButtons(QMessageBox.Ok)
             msg_box.show()
             return
@@ -691,10 +698,10 @@ class TweakerApp(QtWidgets.QMainWindow):
     def closeEvent(self, event):
         reply = QMessageBox.critical(
             self,
-            'Confirm Exit',
-            'Are you sure you want to exit?',
+            "Confirm Exit",
+            "Are you sure you want to exit?",
             QMessageBox.Yes | QMessageBox.No,
-            QMessageBox.No
+            QMessageBox.No,
         )
         if reply == QMessageBox.Yes:
             # Save settings when the application is closed
