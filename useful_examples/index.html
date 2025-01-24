@@ -9,8 +9,10 @@
       
       
       
-        <link rel="prev" href="../reference/tweak_files/">
+        <link rel="prev" href="../quickstart/">
       
+      
+        <link rel="next" href="../reference/tweak_files/">
       
       
       <link rel="icon" href="../assets/images/favicon.png">
@@ -18,7 +20,7 @@
     
     
       
-        <title>Errata - ComfyTweaker Documentation</title>
+        <title>Useful Examples - ComfyTweaker Documentation</title>
       
     
     
@@ -62,7 +64,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#why-do-i-have-to-specify-an-image-and-not-a-workflow-json" class="md-skip">
+        <a href="#useful-examples" class="md-skip">
           Skip to content
         </a>
       
@@ -98,7 +100,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Errata
+              Useful Examples
             
           </span>
         </div>
@@ -228,10 +230,30 @@
       
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../useful_examples/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Useful Examples
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -240,6 +262,35 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#generating-an-xy-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      Generating an XY Matrix
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -268,28 +319,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    Errata
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../errata/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -298,42 +331,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#why-do-i-have-to-specify-an-image-and-not-a-workflow-json" class="md-nav__link">
-    <span class="md-ellipsis">
-      Why do I have to specify an image and not a workflow JSON?
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#when-i-move-to-front-the-numbers-change-but-the-job-doesnt-move" class="md-nav__link">
-    <span class="md-ellipsis">
-      When I move to front, the numbers change but the job doesn't move.
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -355,6 +352,8 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -363,18 +362,9 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#why-do-i-have-to-specify-an-image-and-not-a-workflow-json" class="md-nav__link">
+  <a href="#generating-an-xy-matrix" class="md-nav__link">
     <span class="md-ellipsis">
-      Why do I have to specify an image and not a workflow JSON?
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#when-i-move-to-front-the-numbers-change-but-the-job-doesnt-move" class="md-nav__link">
-    <span class="md-ellipsis">
-      When I move to front, the numbers change but the job doesn't move.
+      Generating an XY Matrix
     </span>
   </a>
   
@@ -395,14 +385,46 @@
                   
 
 
-  <h1>Errata</h1>
-
-<h2 id="why-do-i-have-to-specify-an-image-and-not-a-workflow-json">Why do I have to specify an image and not a workflow JSON?</h2>
-<p>ComfyUI uses two JSON styles for managing workflows -- the visual workflow for use in the web UI and one the API workflow that the computer runs directly.</p>
-<p>Normally, workflows queued from other programs do not have the visual workflow attached to them. But ComfyTweaker uses a workaround that attaches it after generation. This requires both versions of the JSON, which are conveniently paired any workflow generated image.</p>
-<p>ComfyTweaker will eventually support import JSON workflows directly.</p>
-<h2 id="when-i-move-to-front-the-numbers-change-but-the-job-doesnt-move">When I move to front, the numbers change but the job doesn't move.</h2>
-<p>Either right click, Refresh or add another job to get it to update. This is a known bug.</p>
+<h1 id="useful-examples">Useful Examples</h1>
+<p>The use of Jinja in tweaks files adds a lot of flexibility. Here are some advanced examples of common tasks being automated with Jinja.</p>
+<h2 id="generating-an-xy-matrix">Generating an XY Matrix</h2>
+<p>Set the variables at the beginning of this tweak depending on your needs.</p>
+<p>You'll have to calculate for yourself how many jobs to generate. The example below would need 100 images to be fully generated.</p>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p p-Indicator">{</span><span class="c1">#</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nv">Basic XY matrix example.</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nv">Min is lowest strength</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">max is highest strength.</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="nv">Step is the step size between each strength value.</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="nv">#</span><span class="p p-Indicator">}</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="p p-Indicator">{</span><span class="err">%</span><span class="w"> </span><span class="nv">set min = 0 %</span><span class="p p-Indicator">}</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="p p-Indicator">{</span><span class="err">%</span><span class="w"> </span><span class="nv">set max = 1 %</span><span class="p p-Indicator">}</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="p p-Indicator">{</span><span class="err">%</span><span class="w"> </span><span class="nv">set step = 0.1 %</span><span class="p p-Indicator">}</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="p p-Indicator">{</span><span class="err">%</span><span class="w"> </span><span class="nv">macro lora1_strength(iteration) -%</span><span class="p p-Indicator">}</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">    </span><span class="p p-Indicator">{{</span><span class="nv">- min + (iteration // ((max - min) / step)) * step -</span><span class="p p-Indicator">}}</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="p p-Indicator">{</span><span class="err">%</span><span class="nv">- endmacro %</span><span class="p p-Indicator">}</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="p p-Indicator">{</span><span class="err">%</span><span class="w"> </span><span class="nv">macro lora2_strength(iteration) -%</span><span class="p p-Indicator">}</span>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">    </span><span class="p p-Indicator">{{</span><span class="nv">- min + (iteration % ((max - min) / step)) * step -</span><span class="p p-Indicator">}}</span>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="p p-Indicator">{</span><span class="err">%</span><span class="nv">- endmacro %</span><span class="p p-Indicator">}</span>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="nt">tweaks</span><span class="p">:</span>
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">selector</span><span class="p">:</span>
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Lora</span><span class="nv"> </span><span class="s">Loader</span><span class="nv"> </span><span class="s">1&quot;</span>
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="w">      </span><span class="nt">changes</span><span class="p">:</span>
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="w">        </span><span class="nt">model_strength</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{{</span><span class="w"> </span><span class="nv">lora1_strength(iteration)</span><span class="w"> </span><span class="p p-Indicator">}}</span>
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">selector</span><span class="p">:</span>
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Lora</span><span class="nv"> </span><span class="s">Loader</span><span class="nv"> </span><span class="s">2&quot;</span>
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="w">      </span><span class="nt">changes</span><span class="p">:</span>
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="w">        </span><span class="nt">model_strength</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{{</span><span class="w"> </span><span class="nv">lora2_strength(iteration)</span><span class="w"> </span><span class="p p-Indicator">}}</span>
+</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">selector</span><span class="p">:</span>
+</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;KSampler&quot;</span>
+</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="w">      </span><span class="nt">changes</span><span class="p">:</span>
+</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span class="w">        </span><span class="nt">seed</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{{</span><span class="nv">random_seed()</span><span class="p p-Indicator">}}</span>
+</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">selector</span><span class="p">:</span>
+</span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a><span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Save</span><span class="nv"> </span><span class="s">Image&quot;</span>
+</span><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a><span class="w">      </span><span class="nt">changes</span><span class="p">:</span>
+</span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a><span class="w">        </span><span class="nt">prefix </span><span class="p">:</span><span class="w"> </span><span class="s">&quot;lora1_{{</span><span class="nv"> </span><span class="s">lora1_strength(iteration)</span><span class="nv"> </span><span class="s">}}_lora2_{{</span><span class="nv"> </span><span class="s">lora2_strength(iteration)</span><span class="nv"> </span><span class="s">}}_image&quot;</span>
+</span></code></pre></div>
 
 
 

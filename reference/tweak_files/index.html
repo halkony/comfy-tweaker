@@ -9,7 +9,7 @@
       
       
       
-        <link rel="prev" href="../../quickstart/">
+        <link rel="prev" href="../../useful_examples/">
       
       
         <link rel="next" href="../../errata/">
@@ -230,6 +230,26 @@
       
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../../useful_examples/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Useful Examples
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
     
   
   
@@ -277,6 +297,15 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      Global Variables
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#filters" class="md-nav__link">
@@ -495,6 +524,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#global-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      Global Variables
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#filters" class="md-nav__link">
     <span class="md-ellipsis">
       Filters
@@ -688,6 +726,13 @@
 <p>Each tweak is defined under <code>tweaks</code>. Each item in tweak should have a <code>selector</code> and <code>changes</code>.</p>
 <p>A selector expects the <code>id</code> of the node or the <code>name</code> of the node, but not both. As of right now, you cannot use a selector that would match to more than one node in a workflow.</p>
 <p>Any values under <code>changes</code> will be applied to the workflow when it is run with Comfy Tweaker. These changes are preserved when you drag and drop the resulting image into ComfyUI. If you press <code>Save As...</code> in the GUI, you can save the workflow JSON directly.</p>
+<h2 id="global-variables">Global Variables</h2>
+<ul>
+<li>iteration<ul>
+<li>The current iteration of the job in the workflow. Useful for cycling through values with advanced Jinja syntax. See <a href="../../useful_examples/">Useful Examples</a>.</li>
+</ul>
+</li>
+</ul>
 <h2 id="filters">Filters</h2>
 
 
