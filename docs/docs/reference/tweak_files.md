@@ -22,5 +22,9 @@ A selector expects the `id` of the node or the `name` of the node, but not both.
 
 Any values under `changes` will be applied to the workflow when it is run with Comfy Tweaker. These changes are preserved when you drag and drop the resulting image into ComfyUI. If you press `Save As...` in the GUI, you can save the workflow JSON directly.
 
+## Global Variables
+ - iteration
+    - The current iteration of the job in the workflow. Useful for cycling through values with advanced Jinja syntax. See [Useful Examples](../useful_examples.md).
+
 ## Filters
 ::: comfy_tweaker.filters

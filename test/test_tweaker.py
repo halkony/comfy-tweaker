@@ -359,6 +359,27 @@ def test_can_regex_match_to_lora_names(models_directory):
         "test2.safetensors",
     ]
 
+def test_can_make_xy_matrix_in_jinja():
+    tweaks_yaml = """
+    {% macro lora1_strength(iteration) %}{{ (iteration // 10) * 0.05 }}{% endmacro %}
+    {% macro lora2_strength(iteration) %}{{ (iteration % 10) * 0.05 }}{% endmacro %}
+    tweaks:
+        - selector:
+            name: "Lora Loader 1"
+          changes:
+            strength: {{ lora1_strength(iteration) }}
+        - selector:
+            name: "Lora Loader 2"
+          changes:
+            strength: {{ lora2_strength(iteration) }}
+    """
+
+    tweaks = tweaker.Tweaks.from_yaml(tweaks_yaml)
+    for i in range(200):
+        assert tweaks.tweaks[0].changes["strength"] == (i // 10) * 0.05
+        assert tweaks.tweaks[1].changes["strength"] == (i % 10) * 0.05
+        tweaks = tweaks.regenerate()
+
 def test_can_generate_tweaks_with_an_iterator():
     tweaks_yaml = """
     tweaks:

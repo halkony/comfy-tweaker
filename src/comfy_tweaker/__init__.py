@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import comfy_tweaker.filters as filters
 
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 
 import asyncio
 import json
@@ -176,6 +176,8 @@ class JobQueue:
                         job.status = JobStatus.IN_PROGRESS
                         start_time = time.time()
                         job.workflow = job.original_workflow.apply_tweaks(job.tweaks)
+                        # regenerate the tweaks for new random values and to add one to iteration
+                        job.tweaks = job.tweaks.regenerate()
                         print(f"Running job ({job.progress + 1}/{job.amount})...")
                         await asyncio.to_thread(send_job_to_server, job)
                         job.progress = i + 1
@@ -307,8 +309,6 @@ class Workflow:
 
         # copy is required here otherwise we end up mutating that state of our original workflow
         resulting_workflow = Workflow(copy(self.gui_workflow), copy(self.api_workflow))
-
-        tweaks = tweaks.regenerate()
 
         for tweak in tweaks.tweaks:
             # use the selector in the tweak to find the node in the gui_workflow
