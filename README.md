@@ -48,13 +48,16 @@ It is ideal for:
 ## Installation
 Download the latest .exe under [releases.](https://github.com/halkony/comfy-tweaker/releases)
 
-Check out the quickstart guide in the docs to get started.
-
-## Troubleshooting
-- Windows users should ensure that the paths in their tweaks files use forward slashes.
-- This repo has not been tested on Linux yet. If the released .exe doesn't work, try cloning this repo and running
+If you don't want to run the .exe or you are on Linux, you can install comfy-tweaker from source.
 ```py
+git clone https://github.com/halkony/comfy-tweaker
+cd comfy-tweaker
 pip install -r ./requirements/base.txt
 pip install .
 comfy-tweaker
 ```
+
+Check out the quickstart guide in the docs to get started.
+
+## Troubleshooting
+- Windows users should ensure that the paths in their tweaks files use forward slashes.
