@@ -46,21 +46,15 @@ It is ideal for:
 
 
 ## Installation
-Download the latest installer under releases.
-
-or
-
-Install the app with pip
-```sh
-pip install comfy-tweaker
-```
-
-And run the UI with
-```sh
-comfy-tweaker
-```
+Download the latest .exe under [releases.](https://github.com/halkony/comfy-tweaker/releases)
 
 Check out the quickstart guide in the docs to get started.
 
 ## Troubleshooting
-- Windows users should ensure that the paths in their tweaks files use forward slashes
+- Windows users should ensure that the paths in their tweaks files use forward slashes.
+- This repo has not been tested on Linux yet. If the released .exe doesn't work, try cloning this repo and running
+```py
+pip install -r ./requirements/base.txt
+pip install .
+comfy-tweaker
+```

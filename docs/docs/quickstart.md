@@ -1,17 +1,14 @@
 Note: This software is considered pre-Alpha. APIs may change in the future.
 
 # Quickstart
-Enable "Node ID Badges" in your ComfyUI settings if you haven't.
 
-Open an image in ComfyUI and note the id of the prompt node.
+Launch the UI by running the latest `comfy-tweaker.exe` from the [releases page.](https://github.com/halkony/comfy-tweaker/releases)
 
-Run the GUI with
-```sh
-comfy-tweaker
-```
-or from an installed exe.
+Go to `Edit>Preference` and set the ComfyUI folder to the root of your ComfyUI installation (the folder that contains both "input" and "output").
 
-Drag and drop your image image into Comfy Tweaker.
+Open an image in ComfyUI and note the id of the prompt node. Enable "Node ID Badges" in your ComfyUI settings if you haven't.
+
+Drag and drop the image into Comfy Tweaker.
 
 Create a yaml file and use the node id to define changes.
 
@@ -29,7 +26,7 @@ Drag and drop this yaml file into Comfy Tweaker. Click `Add Job`, then click `St
 
 The image should contain an old man sitting on a bench.
 
- You can save the tweaked workflow without generating it by clicking the `Save As...` button.
+You can save the tweaked workflow without generating it by clicking the `Save As...` button.
 
 ---
 
@@ -45,7 +42,7 @@ tweaks:
         text: "An old man sitting on a bench."
 ```
 
-Usually the name of the input is the same as its placeholder text. If you don't see the name of the input you're trying to change, right click the node in ComfyUI and hover over "Convert Widget to Input" and it should be there.
+Usually the name of the change is the same as its placeholder text. If you don't see the name of the input you're trying to change, right click the node in ComfyUI and hover over "Convert Widget to Input". It should be there.
 
 ## Random Values
 Tweak files support an extended Jinja syntax for dynamically generated values.
@@ -132,7 +129,7 @@ tweaks:
 It's important to set a variable if you want to reuse a cycled value. Calling a cycling function again in the same tweak file will produce the next value, which is not recommended.
 
 ## Filtering By Name
-To filter a random selection by its contents, use the `match` or `regex_match` keyword argument. The following example would select a random lora with "cartoon" in it.
+To filter a random selection by its contents, use the `match` or `regex_match` keyword argument. The following example would select a random lora with the word "cartoon" in it.
 
 ```yaml
 tweaks:
@@ -157,7 +154,7 @@ tweaks:
 This copies the image into your inputs folder and returns its filename, which is what ComfyUI expects. Every time it is evaluated, it will copy the image to the inputs folder, so be mindful when working with large images.
 
 ## Wildcards
-Comfy Tweaker supports standard stable diffusion wildcards. You can set your wildcards directory in `Edit>Preferences`
+Comfy Tweaker supports standard stable diffusion wildcards. You can set your wildcards directory in `Edit>Preferences`.
 
 The following tweak would either set the prompt to "human" or an entry from the "animals.txt" file in your wildcards directory.
 ```yaml
