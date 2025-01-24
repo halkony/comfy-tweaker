@@ -252,7 +252,7 @@ class TweakerApp(QtWidgets.QMainWindow):
         self.update_environment_variables()
         self.job_queue = JobQueue()
         self.setAcceptDrops(True)
-        self.ui.queueStopButton.setEnabled(False)
+        # self.ui.queueStopButton.setEnabled(False)
 
         self.drop_label = QtWidgets.QLabel(self)
         self.drop_label.setAlignment(Qt.AlignCenter)
@@ -455,7 +455,7 @@ class TweakerApp(QtWidgets.QMainWindow):
     def stop_queue(self):
         print("Stopping the job queue after finishing current job...")
         self.job_queue.stop()
-        self.ui.queueStopButton.setEnabled(False)
+        # self.ui.queueStopButton.setEnabled(False)
 
     @asyncSlot()
     async def update_comfyui_connected(self):
@@ -504,12 +504,12 @@ class TweakerApp(QtWidgets.QMainWindow):
             return
         self.starting_job_count = len(self.job_queue.queue)
         self.update_progress_bar()
-        self.ui.queueStopButton.setEnabled(True)
+        # self.ui.queueStopButton.setEnabled(True)
         if self.job_queue.mid_job:
             self.job_queue.restart()
         else:
             await self.job_queue.start()
-        self.ui.queueStopButton.setEnabled(False)
+        # self.ui.queueStopButton.setEnabled(False)
 
     def update_progress_bar(self):
         if len(self.job_queue.all_jobs) == 0:
