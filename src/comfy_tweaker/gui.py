@@ -722,12 +722,6 @@ async def main():
 
 
 def entry():
-    asyncio.run(main())
-
-
-from appdirs import user_data_dir
-
-if __name__ == "__main__":
     data_dir = user_data_dir("ComfyTweaker", "ComfyTweaker", roaming=True)
     logger.add(os.path.join(data_dir, "logs/comfytweaker_{time}.log"))
     logger.add(sys.stdout)
@@ -736,3 +730,9 @@ if __name__ == "__main__":
     except Exception as e:
         logger.critical(f"Exception occurred: {e}")
         logger.critical(traceback.format_exc())
+
+
+from appdirs import user_data_dir
+
+if __name__ == "__main__":
+    entry()

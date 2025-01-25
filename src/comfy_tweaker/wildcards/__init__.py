@@ -44,6 +44,10 @@ class WildcardProcessor:
         context = {}
 
         def replace(match):
+            def replace_file_wildcard(match):
+                file_wildcard = f"__{match.group(1)}__"
+                return self.evaluate_file_wildcard(file_wildcard)
+
             content = match.group(1).split("@")
             options = re.split(r"\|(?![^{]*\})", content[0])
             for index, option in enumerate(options):
@@ -59,22 +63,16 @@ class WildcardProcessor:
                 else:
                     weighted_options.append(option.strip())
             result = random.choice(weighted_options)
+            result = file_wildcard_pattern.sub(replace_file_wildcard, result)
             if len(content) > 1:
                 if content[1] in context:
                     raise ValueError(f"Duplicate ref key found: {content[1]}")
                 context[content[1]] = result
             return result
 
-        def replace_file_wildcard(match):
-            file_wildcard = f"__{match.group(1)}__"
-            return self.evaluate_file_wildcard(file_wildcard)
-
         # Replace nested {} expressions first
         while pattern.search(text):
             text = pattern.sub(replace, text)
-
-        # Replace all occurrences of the file wildcard patterns in the text
-        text = file_wildcard_pattern.sub(replace_file_wildcard, text)
 
         # Replace {@ref} syntax in place
         while ref_pattern.search(text):
