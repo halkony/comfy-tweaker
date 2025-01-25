@@ -195,7 +195,7 @@ def test_tweaks_file_wildcards_can_use_file_wildcards(mocker, wildcards_director
         - selector:
             id: 346
           changes:
-            value: {{ "__animals__" | wildcards }}
+            value: {{ "{__animals__}" | wildcards }}
     """
     os.environ["WILDCARDS_DIRECTORY"] = str(wildcards_directory)
 

@@ -41,6 +41,12 @@ def test_wildcard_ref_names_must_be_unique(wildcard_processor):
     with pytest.raises(ValueError):
         wildcard_processor.process(text)
 
+def test_file_wildcards_work_with_backrefs(wildcard_processor):
+    # note this test is only going to be reliable if etsy colors contains only single word wildcards
+    text = "{__etsy/colors__@main} {@main}"
+    result = wildcard_processor.process(text)
+    words = result.split(" ")
+    assert result == f"{words[0]} {words[0]}"
 
 def test_wildcard_references(wildcard_processor):
     text = "{a|b|c@a} {d|e|f@b} {{h|i}|g@c} {@a} {@b} {@c}"
