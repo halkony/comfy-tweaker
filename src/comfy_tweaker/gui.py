@@ -753,7 +753,6 @@ async def main():
 def entry():
     data_dir = user_data_dir("ComfyTweaker", "ComfyTweaker", roaming=True)
     logger.add(os.path.join(data_dir, "logs/comfytweaker_{time}.log"))
-    logger.add(sys.stdout)
     try:
         asyncio.run(main())
     except Exception as e:
