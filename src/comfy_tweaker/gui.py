@@ -17,7 +17,7 @@ import qdarktheme
 from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtCore import QAbstractTableModel, Qt, QTimer
 from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import QFileDialog, QMessageBox, QTableWidgetItem
+from PySide6.QtWidgets import QFileDialog, QMessageBox, QTableWidgetItem, QInputDialog
 from qasync import QEventLoop, asyncSlot
 
 import comfy_tweaker
@@ -347,14 +347,24 @@ class TweakerApp(QtWidgets.QMainWindow):
 
     def dropEvent(self, event):
         self.drop_label.hide()
+        yaml_files = []
         for url in event.mimeData().urls():
             file_path = url.toLocalFile()
             if file_path.lower().endswith(".png"):
                 self.load_image(file_path)
-                break
+                return
             if file_path.lower().endswith(".yaml"):
-                self.load_tweaks_file(file_path)
-                break
+                yaml_files.append(file_path)
+        
+        if len(yaml_files) == 1:
+            self.load_tweaks_file(yaml_files[0])
+        elif len(yaml_files) > 1:
+            self.load_yaml_batch(yaml_files)
+
+    def load_yaml_batch(self, yaml_files):
+        for yaml_file in yaml_files:
+            self.load_tweaks_file(yaml_file)
+            self.add_job()
 
     def clear_tweaks_file(self):
         self.ui.tweaksFileLineEdit.setText("")
