@@ -37,6 +37,20 @@ def get_history(prompt_id):
     with urllib.request.urlopen("http://{}/history/{}".format(server_address, prompt_id)) as response:
         return json.loads(response.read())
 
+def add_gui_workflow_to_image(image_path, gui_workflow_data):
+    lock_path = f"{image_path}.lock"
+    lock = FileLock(lock_path, timeout=20)
+    try:
+        with lock:
+            img = Image.open(image_path)
+            img.info['workflow'] = gui_workflow_data
+            metadata = PngImagePlugin.PngInfo()
+            for k, v in img.info.items():
+                metadata.add_text(k, v)
+            img.save(image_path, "PNG", pnginfo=metadata)
+    except Timeout:
+        logger.info(f"Failed to acquire lock for {image_path}. Image taking too long to write from ComfyUI?")
+
 def generate_images(ws, job):
     """
     Generate the images, and write the GUI workflow into the resulting file.
@@ -87,7 +101,7 @@ def generate_images(ws, job):
                     # as far as I can tell, comfy deletes them after the workflow is done
                     continue
                 comfyui_output_folder = os.getenv("COMFYUI_OUTPUT_FOLDER")
-    
+
                 image_path = os.path.join(comfyui_output_folder, image['subfolder'], image['filename'])
                 if os.path.dirname(image_path) == os.path.join(comfyui_output_folder, "output"):
                     # this is a special case, when saved to root output folder
@@ -98,28 +112,20 @@ def generate_images(ws, job):
                 # this wave of writing out the metadata requires loading the image into memory
                 # this takes a long time with 4096x4096 images but is fine for general use
                 gui_workflow_data = json.dumps(workflow.gui_workflow)
-                logger.info(f"Adding GUI Workflow data to the resulting image {image['filename']}...")
 
                 # we need a lock on the file because when comfyUI is working quickly,
                 # it can say a job is done but still be writing to a file
-                lock_path = f"{image_path}.lock"
-                lock = FileLock(lock_path, timeout=20)
                 try:
-                    with lock:
-                        img = Image.open(image_path)
-                        img.info['workflow'] = gui_workflow_data
-                        metadata = PngImagePlugin.PngInfo()
-                        for k, v in img.info.items():
-                            metadata.add_text(k, v)
-                        img.save(image_path, "PNG", pnginfo=metadata)
+                    logger.info(f"Adding GUI Workflow data to the resulting image {image['filename']}...")
+                    add_gui_workflow_to_image(image_path, gui_workflow_data)
                 except Timeout:
                     logger.info(f"Failed to acquire lock for {image_path}. Image taking too long to write?")
                     break
+                logger.info(f"Successfully saved gui workflow to {image['filename']}...")
 
                 # this feels naughty in the ComfyUI module, but im not sure how
                 # else to store this information
                 job.output_location = image_path
-
 
 def send_job_to_server(job):
     ws = websocket.WebSocket()
