@@ -31,6 +31,19 @@ executor = ThreadPoolExecutor()
 
 from comfy_tweaker.comfyui import check_if_connected
 
+class JobQueueTask(QtCore.QRunnable):
+    def __init__(self, job_queue):
+        super().__init__()
+        self.job_queue = job_queue
+
+    def run(self):
+        if self.job_queue.mid_job:
+            self.job_queue.restart()
+        else:
+            self.async_job_start()
+
+    def async_job_start(self):
+        asyncio.run(self.job_queue.start())
 
 class QTextEditLogger(logging.Handler):
     """Custom logging handler to redirect logs to a QTextEdit."""
@@ -343,8 +356,9 @@ class TweakerApp(QtWidgets.QMainWindow):
     def dragLeaveEvent(self, event):
         self.drop_label.hide()
 
-    def handle_start_queue(self):
-        self.start_queue()
+    @asyncSlot()
+    async def handle_start_queue(self):
+        await self.start_queue()
 
     def dropEvent(self, event):
         self.drop_label.hide()
@@ -493,7 +507,7 @@ class TweakerApp(QtWidgets.QMainWindow):
             QMessageBox.critical(
                 self,
                 "ComfyUI Not Connected",
-                "Could not connect to comfyui server. Please check your comfyui server address in preferences.",
+                "Could not connect to comfyui server. Please check your cormfyui server address in preferences.",
             )
             return
         self.update_environment_variables()
@@ -508,10 +522,9 @@ class TweakerApp(QtWidgets.QMainWindow):
         self.starting_job_count = len(self.job_queue.queue)
         self.update_progress_bar()
         # self.ui.queueStopButton.setEnabled(True)
-        if self.job_queue.mid_job:
-            self.job_queue.restart()
-        else:
-            await self.job_queue.start()
+        task = JobQueueTask(self.job_queue)
+        QtCore.QThreadPool.globalInstance().start(task)
+
         # self.ui.queueStopButton.setEnabled(False)
 
     def update_progress_bar(self):

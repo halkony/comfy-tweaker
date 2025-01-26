@@ -183,7 +183,7 @@ class JobQueue:
                         # regenerate the tweaks for new random values and to add one to iteration
                         job.tweaks = job.tweaks.regenerate()
                         logger.info(f"Running job ({job.progress + 1}/{job.amount})...")
-                        await asyncio.to_thread(send_job_to_server, job)
+                        await send_job_to_server(job)
                         job.progress = i + 1
                         end_time = time.time()
                         elapsed_time = timedelta(seconds=end_time - start_time)
