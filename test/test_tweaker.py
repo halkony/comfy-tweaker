@@ -439,3 +439,14 @@ def test_can_use_plugins_in_tweaks_file(tweaks_directory):
     """
     tweaks = tweaker.Tweaks.from_yaml(tweaks_yaml)
     assert tweaks.tweaks[0].changes["greeting"] == "Hello, world!"
+
+def test_as_json_property(tweaks_directory):
+    tweaks_yaml = f"""
+    tweaks:
+        - selector:
+            id: 346
+          changes:
+            value: {{{{ from_folder_absolute("{str(tweaks_directory).replace(os.sep, "/")}", file_glob="*.json") | as_json_property("foo", "bar") }}}}
+    """
+    tweaks = tweaker.Tweaks.from_yaml(tweaks_yaml)
+    assert tweaks.tweaks[0].changes["value"] == "baz"

@@ -4,6 +4,7 @@ import itertools
 import os
 import random
 import re
+import json
 
 from PIL import Image
 
@@ -369,3 +370,12 @@ def random_choice(choices):
         Any: A randomly chosen element from the list.
     """
     return random.choice(choices)
+
+@Tweaks.register(plugin_type=PluginType.FILTERS)
+def as_json_property(file_path, *keys):
+    """Grabs a JSON property from the given absolute file path. Pass in as many strings as you need accessors."""
+    with open(file_path) as file:
+        data = json.load(file)
+        for key in keys:
+            data = data[key]
+        return data
