@@ -1,6 +1,6 @@
 from __future__ import annotations
+from typing import ClassVar
 
-import comfy_tweaker.filters as filters
 from loguru import logger
 
 __version__ = "0.1.2"
@@ -16,11 +16,14 @@ from copy import copy, deepcopy
 from dataclasses import dataclass, field
 from datetime import timedelta
 from enum import Enum
+import functools
+from comfy_tweaker.plugins import PluginType
 
 from jinja2 import Environment, Template
 from PIL import Image
 from yaml import safe_dump, safe_load
 
+from comfy_tweaker.plugins import Plugin
 from comfy_tweaker.comfyui import send_job_to_server
 from comfy_tweaker.exceptions import (IncompleteImageWorkflowError,
                                       InvalidSelectorError, NodeFieldNotFound,
@@ -362,6 +365,15 @@ class Tweaks:
     _original_yaml: str = field(default="")
     _iteration: int = field(default=0)
 
+    _plugins_initialized: ClassVar[bool] = field(default=False, init=False)
+
+    def initialize_plugins():
+        # runs all the registered tweaks plugins inside of filters
+        if Tweaks._plugins_initialized:
+            return
+        else:
+            import comfy_tweaker.filters
+
     def regenerate(self):
         """Regenerates the tweaks from the original yaml. Call this function if you want regenerate random numbers or selections.
 
@@ -384,25 +396,34 @@ class Tweaks:
         return Tweaks(self.tweaks + [tweak])
 
     @classmethod
+    def register(cls, plugin_name=None, plugin_type=PluginType.GLOBALS):
+        """Registers a function for use as a Jinja filter. If plugin name is not provided, defaults to the function name."""
+        def decorator(func):
+            if not plugin_name:
+                _plugin_name = func.__name__
+            plugin = Plugin(_plugin_name, func, plugin_type)
+            cls.plugins.append(plugin)
+            @functools.wraps(func)
+            def wrapper(*args, **kwargs):
+                return func(*args, **kwargs)
+            return wrapper
+        return decorator
+
+    @classmethod
+    def environment(cls):
+        env = Environment()
+        for plugin in cls.plugins:
+            if plugin.plugin_type == PluginType.GLOBALS:
+                env.globals[plugin.name] = plugin.func
+            elif plugin.plugin_type == PluginType.FILTERS:
+                env.filters[plugin.name] = plugin.func
+        return env
+
+    @classmethod
     def from_yaml(cls, yaml_string, name="Default Tweaks", iteration=0):
         """Import tweaks from a yaml string. The iteration key argument is a custom variable passed into the yaml. This way people can use jinja to modify their workflows."""
-        env = Environment()
-        env.globals["random_float"] = filters.random_float
-        env.globals["random_int"] = filters.random_int
-        env.globals["random_choice"] = filters.random_choice
-        env.globals["from_folder"] = filters.in_folder
-        env.globals["from_folder_absolute"] = filters.from_folder_absolute
-        env.globals["from_models_folder"] = filters.from_models_folder
-        env.globals["in_folder"] = filters.in_folder
-        env.globals["in_folder_absolute"] = filters.in_folder_absolute
-        env.globals["in_models_folder"] = filters.in_models_folder
-        env.globals["random_seed"] = filters.random_seed
-        env.globals["from_file_in_folder"] = filters.from_file_in_folder
-        env.globals["from_file"] = filters.from_file
-        env.filters["wildcards"] = filters.wildcards
-        env.filters["match"] = filters.match
-        env.filters["as_image"] = filters.as_image
-        env.filters["regex_match"] = filters.regex_match
+        cls.initialize_plugins()
+        env = Tweaks.environment()
         env.globals["iteration"] = iteration
         if yaml_string:
             template = env.from_string(yaml_string)
@@ -417,3 +438,5 @@ class Tweaks:
         """Import tweaks from a yaml file. Renders the template with jinja before returning."""
         with open(tweaks_file_path) as file:
             return cls.from_yaml(file.read(), name=name)
+
+Tweaks.plugins = []

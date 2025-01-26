@@ -3,6 +3,7 @@ import os
 
 import pytest
 
+from comfy_tweaker.plugins import import_plugin
 import comfy_tweaker as tweaker
 from comfy_tweaker import Tweak, Tweaks, Workflow
 from comfy_tweaker.exceptions import (IncompleteImageWorkflowError,
@@ -423,3 +424,18 @@ async def test_job_queue_pause(workflow, tweaks, mock_send_workflow_to_server):
     await task
     assert len(queue.queue) == 1
     assert mock_send_workflow_to_server.call_count == 5
+
+def test_can_use_plugins_in_tweaks_file(tweaks_directory):
+    plugin_path = os.path.join(tweaks_directory, "greet_plugin.py")
+    import_plugin("greet_plugin", plugin_path)
+
+
+    tweaks_yaml = """
+    tweaks:
+        - selector:
+            id: 346
+          changes:
+            greeting: {{ greet("world") }}
+    """
+    tweaks = tweaker.Tweaks.from_yaml(tweaks_yaml)
+    assert tweaks.tweaks[0].changes["greeting"] == "Hello, world!"
