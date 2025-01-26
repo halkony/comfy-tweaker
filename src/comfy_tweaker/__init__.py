@@ -51,6 +51,7 @@ class Job:
     preview_image: Image = field(default=None, init=False)
     amount: int = field(default=1)
     progress: int = field(default=0, init=False)
+    client_id: str = field(default_factory=uuid.uuid4, init=False)
 
     @property
     def remaining(self):
@@ -152,7 +153,7 @@ class JobQueue:
     def mid_job(self):
         return self._running_thread_lock.locked()
 
-    def start(self):
+    async def start(self):
         """Starts a queue that is not currently in progress."""
         with self._running_thread_lock:
             logger.info("Starting queue...")
@@ -184,7 +185,7 @@ class JobQueue:
                         # regenerate the tweaks for new random values and to add one to iteration
                         job.tweaks = job.tweaks.regenerate()
                         logger.info(f"Running job ({job.progress + 1}/{job.amount})...")
-                        run_job_on_server(job)
+                        await run_job_on_server(job)
                         job.progress = i + 1
                         end_time = time.time()
                         elapsed_time = timedelta(seconds=end_time - start_time)

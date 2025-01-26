@@ -2,6 +2,7 @@
 #Once the prompt execution is done it downloads the images using the /history endpoint
 
 from loguru import logger
+import websockets
 
 import asyncio
 import json
@@ -16,11 +17,9 @@ from filelock import FileLock, Timeout
 import websocket  # NOTE: websocket-client (https://github.com/websocket-client/websocket-client)
 from PIL import Image, PngImagePlugin
 
-client_id = str(uuid.uuid4())
-
-def queue_prompt(prompt):
+def queue_prompt(prompt, client_id):
     server_address = os.getenv("COMFYUI_SERVER_ADDRESS")
-    p = {"prompt": prompt, "client_id": client_id}
+    p = {"prompt": prompt, "client_id": str(client_id)}
     data = json.dumps(p).encode('utf-8')
     req =  urllib.request.Request("http://{}/prompt".format(server_address), data=data)
     return json.loads(urllib.request.urlopen(req).read())
@@ -49,47 +48,67 @@ def add_gui_workflow_to_image(image_path, gui_workflow_data):
                 metadata.add_text(k, v)
             img.save(image_path, "PNG", pnginfo=metadata)
     except Timeout:
-        logger.info(f"Failed to acquire lock for {image_path}. Image taking too long to write from ComfyUI?")
+        logger.error(f"Failed to acquire lock for {image_path}. Image taking too long to write from ComfyUI?")
 
-def generate_images(ws, job):
+async def generate_images(ws, job):
     """
     Generate the images, and write the GUI workflow into the resulting file.
     """
     workflow = job.workflow
     prompt = workflow.api_workflow
-    prompt_id = queue_prompt(prompt)['prompt_id']
+    prompt_id = queue_prompt(prompt, job.client_id)['prompt_id']
 
     if not os.environ.get("COMFYUI_OUTPUT_FOLDER"):
         raise ValueError("COMFYUI_OUTPUT_FOLDER is not set. This is required to save the images.")
 
     history_check_timer = time.time()
     while True:
-        if time.time() - history_check_timer > 15:  # Check every 5 seconds
-            try:
-                get_history(prompt_id)[prompt_id]
-                break
-            except KeyError:
-                history_check_timer = time.time()
+        # if time.time() - history_check_timer > 15:  # Check every 5 seconds
+        #     try:
+        #         get_history(prompt_id)[prompt_id]
+        #         break
+        #     except KeyError:
+        #         history_check_timer = time.time()
 
-        out = ws.recv()
-        if isinstance(out, str):
+        logger.debug("Waiting for message from websocket...")
+        out = await ws.recv()
+        logger.debug(f"Received message from websocket: {out}")
+        try:
+            logger.debug("Loading message from json...")
             message = json.loads(out)
+
             if message['type'] == 'executing':
+                logger.debug("Message is of type executing...")
                 data = message['data']
+                logger.debug("Got data from image...")
                 if data['node'] is None and data['prompt_id'] == prompt_id:
                     logger.info("Prompt is done executing.")
                     break #Execution is done
+                else:
+                    logger.debug("Prompt is not done executing.")
+                    continue
+        except:
+            logger.error("Failed to load message from json.")
+            continue
 
-        else:
-            # If you want to be able to decode the binary stream for latent previews, here is how you can do it:
+        try:
+            logger.debug("Loading message as preview from json...")
             bytesIO = BytesIO(out[8:])
+            logger.debug("Updating image preview...")
+            logger.debug("Getting BytesIO object from binary data...")
+            # If you want to be able to decode the binary stream for latent previews, here is how you can do it:
             # preview_image = Image.open(bytesIO).resize((512, 512)) # This is your preview in PIL image format, store it in a global
 
             # we shouldm monitor if this bogs down systems with huge image workflows
+            logger.debug("Setting preview image with retrieved bytes...")
             job.preview_image = bytesIO.getvalue()
             continue #previews are binary data
+        except:
+            logger.error("Failed to load message as iamge preview.")
+            continue
 
     # this code is executed after the workflow is done executing
+    logger.info("Getting outputs from prompt history...")
     history = get_history(prompt_id)[prompt_id]
     for node_id in history['outputs']:
         node_output = history['outputs'][node_id]
@@ -100,6 +119,7 @@ def generate_images(ws, job):
                     # Comfyui writes these files for things like image previews, which we don't want to write GUI data too
                     # as far as I can tell, comfy deletes them after the workflow is done
                     continue
+                logger.info(f"Found an output image named {image['filename']}...")
                 comfyui_output_folder = os.getenv("COMFYUI_OUTPUT_FOLDER")
 
                 image_path = os.path.join(comfyui_output_folder, image['subfolder'], image['filename'])
@@ -111,6 +131,7 @@ def generate_images(ws, job):
                 # the API workflow is already written in 'prompt', we just have to write 'workflow'
                 # this wave of writing out the metadata requires loading the image into memory
                 # this takes a long time with 4096x4096 images but is fine for general use
+                logger.info("Grabbing GUI Workflow data...")
                 gui_workflow_data = json.dumps(workflow.gui_workflow)
 
                 # we need a lock on the file because when comfyUI is working quickly,
@@ -127,14 +148,14 @@ def generate_images(ws, job):
                 # else to store this information
                 job.output_location = image_path
 
-def run_job_on_server(job):
-    ws = websocket.WebSocket()
+async def run_job_on_server(job):
     server_address = os.getenv("COMFYUI_SERVER_ADDRESS")
-    ws.connect("ws://{}/ws?clientId={}".format(server_address, client_id))
-    # turn the prompt into a string
+    uri = f"ws://{server_address}/ws?clientId={job.client_id}"
 
-    images = generate_images(ws, job)
-    ws.close()
+    async with websockets.connect(uri) as ws:
+        # turn the prompt into a string
+        images = await generate_images(ws, job)
+        # The connection will be automatically closed when exiting the async with block
 
 import aiohttp
 

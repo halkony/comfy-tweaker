@@ -11,6 +11,9 @@ import traceback
 from concurrent.futures import ThreadPoolExecutor
 from copy import copy
 
+import faulthandler
+faulthandler.enable()
+
 from loguru import logger
 
 import qdarktheme
@@ -40,7 +43,7 @@ class JobQueueTask(QtCore.QRunnable):
         if self.job_queue.mid_job:
             self.job_queue.restart()
         else:
-            self.job_queue.start()
+            asyncio.run(self.job_queue.start())
 
 class QTextEditLogger(logging.Handler):
     """Custom logging handler to redirect logs to a QTextEdit."""
@@ -251,7 +254,6 @@ class TweakerApp(QtWidgets.QMainWindow):
         self.setAcceptDrops(True)
         self.current_tweaks = Tweaks(name="No Tweaks")
         # self.ui.queueStopButton.setEnabled(False)
-
         self.drop_label = QtWidgets.QLabel(self)
         self.drop_label.setAlignment(Qt.AlignCenter)
         # self.drop_label.setPixmap(QtGui.QtPixmap(":/icons/plus_icon.png"))
