@@ -82,6 +82,10 @@ def generate_images(ws, job):
         if 'images' in node_output:
             for image in node_output['images']:
                 # we have to use the comfyui output folder to reconstruct the path of the image and apply our metadata
+                if "ComfyUI_temp" in image["filename"]:
+                    # Comfyui writes these files for things like image previews, which we don't want to write GUI data too
+                    # as far as I can tell, comfy deletes them after the workflow is done
+                    continue
                 comfyui_output_folder = os.getenv("COMFYUI_OUTPUT_FOLDER")
     
                 image_path = os.path.join(comfyui_output_folder, image['subfolder'], image['filename'])
