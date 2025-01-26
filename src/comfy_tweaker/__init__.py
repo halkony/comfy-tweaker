@@ -367,6 +367,9 @@ class Tweaks:
 
     _plugins_initialized: ClassVar[bool] = field(default=False, init=False)
 
+    def __len__(self):
+        return len(self.tweaks)
+
     def initialize_plugins():
         # runs all the registered tweaks plugins inside of filters
         if Tweaks._plugins_initialized:

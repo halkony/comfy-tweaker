@@ -239,6 +239,7 @@ class TweakerApp(QtWidgets.QMainWindow):
         self.update_environment_variables()
         self.job_queue = JobQueue()
         self.setAcceptDrops(True)
+        self.current_tweaks = Tweaks(name="No Tweaks")
         # self.ui.queueStopButton.setEnabled(False)
 
         self.drop_label = QtWidgets.QLabel(self)
@@ -637,10 +638,15 @@ class TweakerApp(QtWidgets.QMainWindow):
             self.current_tweaks = Tweaks(name="No Tweaks")
 
     def validate_tweaks(self):
+        if len(self.current_tweaks) == 0:
+            QMessageBox.critical(self, "Tweaks Error", "Tweaks file seems to be empty. No tweaks to validate.")
+            return
         try:
+            self.set_current_tweaks()
             self.current_workflow.validate(self.current_tweaks)
+            # TODO: We need a way to check how many changes were successfully validated
             QMessageBox.information(
-                self, "Success", "These tweaks are valid for this workflow."
+                self, "Success", f"Successfully validated {len(self.current_tweaks)} tweaks in this workflow."
             )
         except Exception as e:
             error_message = str(e)
