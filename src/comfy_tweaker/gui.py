@@ -40,10 +40,7 @@ class JobQueueTask(QtCore.QRunnable):
         if self.job_queue.mid_job:
             self.job_queue.restart()
         else:
-            self.async_job_start()
-
-    def async_job_start(self):
-        asyncio.run(self.job_queue.start())
+            self.job_queue.start()
 
 class QTextEditLogger(logging.Handler):
     """Custom logging handler to redirect logs to a QTextEdit."""
@@ -734,20 +731,17 @@ class TweakerApp(QtWidgets.QMainWindow):
 
 async def main():
     """Main entry point for the application."""
-    try:
-        app = QtWidgets.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
 
-        loop = QEventLoop(app)
-        asyncio.set_event_loop(loop)
-        qdarktheme.setup_theme()
+    loop = QEventLoop(app)
+    asyncio.set_event_loop(loop)
+    qdarktheme.setup_theme()
 
-        window = TweakerApp()
-        window.show()
+    window = TweakerApp()
+    window.show()
 
-        with loop:
-            loop.run_forever()
-    except Exception as e:
-        traceback.print_exc()
+    with loop:
+        loop.run_forever()
 
 
 def entry():

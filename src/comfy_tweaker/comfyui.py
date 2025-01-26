@@ -51,7 +51,7 @@ def add_gui_workflow_to_image(image_path, gui_workflow_data):
     except Timeout:
         logger.info(f"Failed to acquire lock for {image_path}. Image taking too long to write from ComfyUI?")
 
-async def generate_images(ws, job):
+def generate_images(ws, job):
     """
     Generate the images, and write the GUI workflow into the resulting file.
     """
@@ -127,13 +127,13 @@ async def generate_images(ws, job):
                 # else to store this information
                 job.output_location = image_path
 
-async def send_job_to_server(job):
+def run_job_on_server(job):
     ws = websocket.WebSocket()
     server_address = os.getenv("COMFYUI_SERVER_ADDRESS")
     ws.connect("ws://{}/ws?clientId={}".format(server_address, client_id))
     # turn the prompt into a string
 
-    images = await generate_images(ws, job)
+    images = generate_images(ws, job)
     ws.close()
 
 import aiohttp

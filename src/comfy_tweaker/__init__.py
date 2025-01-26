@@ -24,7 +24,7 @@ from PIL import Image
 from yaml import safe_dump, safe_load
 
 from comfy_tweaker.plugins import Plugin
-from comfy_tweaker.comfyui import send_job_to_server
+from comfy_tweaker.comfyui import run_job_on_server
 from comfy_tweaker.exceptions import (IncompleteImageWorkflowError,
                                       InvalidSelectorError, NodeFieldNotFound,
                                       NodeNotFoundError,
@@ -152,12 +152,13 @@ class JobQueue:
     def mid_job(self):
         return self._running_thread_lock.locked()
 
-    async def start(self):
+    def start(self):
         """Starts a queue that is not currently in progress."""
         with self._running_thread_lock:
             logger.info("Starting queue...")
             self._stop_event.clear()
             while self.queue:
+                logger.info("Starting next job in queue...")
                 try:
                     job = self.queue[0]
                     if self._stop_event.is_set():
@@ -172,7 +173,7 @@ class JobQueue:
                             logger.info("The queue is paused. Waiting for resume.")
                             job.status = JobStatus.PENDING
                             while self._stop_event.is_set():
-                                await asyncio.sleep(1)
+                                time.sleep(1)
                         if self.queue[0] != job:
                             logger.info("Job no longer at front of queue. Breaking out of loop...")
                             job.status = JobStatus.PENDING
@@ -183,7 +184,7 @@ class JobQueue:
                         # regenerate the tweaks for new random values and to add one to iteration
                         job.tweaks = job.tweaks.regenerate()
                         logger.info(f"Running job ({job.progress + 1}/{job.amount})...")
-                        await send_job_to_server(job)
+                        run_job_on_server(job)
                         job.progress = i + 1
                         end_time = time.time()
                         elapsed_time = timedelta(seconds=end_time - start_time)
