@@ -125,7 +125,7 @@ async def generate_images(ws, job):
                 # we need a lock on the file because when comfyUI is working quickly,
                 # it can say a job is done but still be writing to a file
                 try:
-                    add_job_metadata_to_image(image_path, gui_workflow_data)
+                    add_job_metadata_to_image(image_path, job)
                 except Timeout:
                     logger.info(f"Failed to acquire lock for {image_path}. Image taking too long to write?")
                     break
