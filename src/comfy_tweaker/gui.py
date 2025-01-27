@@ -625,8 +625,7 @@ class TweakerApp(QtWidgets.QMainWindow):
             self._last_length = len(filtered_jobs)
         self.update_progress_bar()
 
-    @asyncSlot()
-    async def add_job(self):
+    def add_job(self):
         try:
             # we validate here once so adding a bunch of jobs is quick
             self.job_queue.add(
