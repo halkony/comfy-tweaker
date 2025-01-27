@@ -275,7 +275,7 @@ class TweakerApp(QtWidgets.QMainWindow):
         # We'll change this back when we find a way to print to both console and our app
         # sys.stdout = StreamToLogger(logging.getLogger(), logging.INFO)
         log_format = "{time:MM/DD/YYYY HH:mm:ss} - {level} - {message}"
-        logger.add(log_handler, format=log_format)
+        logger.add(log_handler, format=log_format, level="INFO")
         self.ui.queueStartButton.clicked.connect(self.handle_start_queue)
         logger.info("Application successfully started")
 
@@ -755,7 +755,10 @@ async def main():
 
 def entry():
     data_dir = user_data_dir("ComfyTweaker", "ComfyTweaker", roaming=True)
-    logger.add(os.path.join(data_dir, "logs/comfytweaker_{time}.log"))
+    # File handler with DEBUG level
+    log_file_path = os.path.join(data_dir, "logs/comfytweaker_{time}.log")
+    logger.add(log_file_path, level="DEBUG")
+
     try:
         asyncio.run(main())
     except Exception as e:
