@@ -71,36 +71,26 @@ async def generate_images(ws, job):
         #     except KeyError:
         #         history_check_timer = time.time()
 
-        logger.debug("Waiting for message from websocket...")
         out = await ws.recv()
-        logger.debug(f"Received message from websocket: {out}")
         try:
-            logger.debug("Loading message from json...")
             message = json.loads(out)
 
             if message['type'] == 'executing':
-                logger.debug("Message is of type executing...")
                 data = message['data']
-                logger.debug("Got data from image...")
                 if data['node'] is None and data['prompt_id'] == prompt_id:
                     logger.info("Prompt is done executing.")
                     break #Execution is done
                 else:
-                    logger.debug("Prompt is not done executing.")
                     continue
         except:
             pass
 
         try:
-            logger.debug("Loading message as preview from json...")
             bytesIO = BytesIO(out[8:])
-            logger.debug("Updating image preview...")
-            logger.debug("Getting BytesIO object from binary data...")
             # If you want to be able to decode the binary stream for latent previews, here is how you can do it:
             # preview_image = Image.open(bytesIO).resize((512, 512)) # This is your preview in PIL image format, store it in a global
 
             # we shouldm monitor if this bogs down systems with huge image workflows
-            logger.debug("Setting preview image with retrieved bytes...")
             job.preview_image = bytesIO.getvalue()
             continue #previews are binary data
         except:
@@ -130,13 +120,11 @@ async def generate_images(ws, job):
                 # the API workflow is already written in 'prompt', we just have to write 'workflow'
                 # this wave of writing out the metadata requires loading the image into memory
                 # this takes a long time with 4096x4096 images but is fine for general use
-                logger.info("Grabbing GUI Workflow data...")
                 gui_workflow_data = json.dumps(workflow.gui_workflow)
 
                 # we need a lock on the file because when comfyUI is working quickly,
                 # it can say a job is done but still be writing to a file
                 try:
-                    logger.info(f"Adding GUI Workflow data to the resulting image {image['filename']}...")
                     add_job_metadata_to_image(image_path, gui_workflow_data)
                 except Timeout:
                     logger.info(f"Failed to acquire lock for {image_path}. Image taking too long to write?")
