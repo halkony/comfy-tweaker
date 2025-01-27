@@ -36,13 +36,14 @@ def get_history(prompt_id):
     with urllib.request.urlopen("http://{}/history/{}".format(server_address, prompt_id)) as response:
         return json.loads(response.read())
 
-def add_gui_workflow_to_image(image_path, gui_workflow_data):
+def add_job_metadata_to_image(image_path, job):
     lock_path = f"{image_path}.lock"
     lock = FileLock(lock_path, timeout=20)
     try:
         with lock:
             img = Image.open(image_path)
-            img.info['workflow'] = gui_workflow_data
+            img.info['workflow'] = json.dumps(job.workflow.gui_workflow)
+            img.info['tweaks'] = json.dumps(job.tweaks._original_yaml)
             metadata = PngImagePlugin.PngInfo()
             for k, v in img.info.items():
                 metadata.add_text(k, v)
@@ -136,7 +137,7 @@ async def generate_images(ws, job):
                 # it can say a job is done but still be writing to a file
                 try:
                     logger.info(f"Adding GUI Workflow data to the resulting image {image['filename']}...")
-                    add_gui_workflow_to_image(image_path, gui_workflow_data)
+                    add_job_metadata_to_image(image_path, gui_workflow_data)
                 except Timeout:
                     logger.info(f"Failed to acquire lock for {image_path}. Image taking too long to write?")
                     break
