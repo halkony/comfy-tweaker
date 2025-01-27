@@ -482,6 +482,7 @@ class TweakerApp(QtWidgets.QMainWindow):
     #         self.ui.queueStartButton.setEnabled(False)
 
     def validate_comfyui_folder(self):
+        logger.debug("Validating comfyui folder...")
         comfyui_folder = self.settings.get("comfy_ui_folder")
         if not os.path.exists(os.path.join(comfyui_folder, "output")) or not os.path.exists(
             os.path.join(comfyui_folder, "input")
@@ -497,7 +498,6 @@ class TweakerApp(QtWidgets.QMainWindow):
         if not comfyui_folder:
             raise ValueError("ComfyUI folder is not set.")
 
-    @asyncSlot()
     async def start_queue(self):
         logger.info("Starting the job queue...")
         logger.info("Checking for comfyui connection...")
@@ -521,7 +521,12 @@ class TweakerApp(QtWidgets.QMainWindow):
         self.starting_job_count = len(self.job_queue.queue)
         self.update_progress_bar()
         # self.ui.queueStopButton.setEnabled(True)
-        await self.job_queue.start()
+        if not self.job_queue.mid_job:
+            logger.debug("Starting job queue...")
+            await self.job_queue.start()
+        else:
+            logger.debug("Restarting job queue...")
+            self.job_queue.restart()
 
         # self.ui.queueStopButton.setEnabled(False)
 
@@ -536,6 +541,7 @@ class TweakerApp(QtWidgets.QMainWindow):
             self.ui.progressBar.setValue(progress)
 
     def update_environment_variables(self):
+        logger.debug("Updating environment variables with UI settings...")
         os.environ["MODELS_FOLDER"] = self.settings.get("models_directory", "")
         os.environ["WILDCARDS_DIRECTORY"] = self.settings.get("wildcards_directory", "")
         if self.settings.get("comfy_ui_folder"):
