@@ -88,8 +88,7 @@ async def generate_images(ws, job):
                     logger.debug("Prompt is not done executing.")
                     continue
         except:
-            logger.error("Failed to load message from json.")
-            continue
+            logger.error("Failed to load message as json.")
 
         try:
             logger.debug("Loading message as preview from json...")
@@ -104,7 +103,7 @@ async def generate_images(ws, job):
             job.preview_image = bytesIO.getvalue()
             continue #previews are binary data
         except:
-            logger.error("Failed to load message as iamge preview.")
+            logger.error("Failed to load message as image preview.")
             continue
 
     # this code is executed after the workflow is done executing

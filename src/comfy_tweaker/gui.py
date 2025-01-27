@@ -21,7 +21,7 @@ from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtCore import QAbstractTableModel, Qt, QTimer
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QFileDialog, QMessageBox, QTableWidgetItem, QInputDialog
-from qasync import QEventLoop, asyncSlot
+from qasync import QEventLoop, asyncSlot, QApplication
 
 import comfy_tweaker
 from comfy_tweaker import JobQueue, JobStatus, Tweaks, Workflow
@@ -521,8 +521,7 @@ class TweakerApp(QtWidgets.QMainWindow):
         self.starting_job_count = len(self.job_queue.queue)
         self.update_progress_bar()
         # self.ui.queueStopButton.setEnabled(True)
-        task = JobQueueTask(self.job_queue)
-        QtCore.QThreadPool.globalInstance().start(task)
+        await self.job_queue.start()
 
         # self.ui.queueStopButton.setEnabled(False)
 
@@ -733,17 +732,20 @@ class TweakerApp(QtWidgets.QMainWindow):
 
 async def main():
     """Main entry point for the application."""
-    app = QtWidgets.QApplication(sys.argv)
+    app = QApplication(sys.argv)
 
     loop = QEventLoop(app)
     asyncio.set_event_loop(loop)
     qdarktheme.setup_theme()
 
+    app_close_event = asyncio.Event()
+    app.aboutToQuit.connect(app_close_event.set)
+
     window = TweakerApp()
     window.show()
 
     with loop:
-        loop.run_forever()
+        loop.run_until_complete(app_close_event.wait())
 
 
 def entry():

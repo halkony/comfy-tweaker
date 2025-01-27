@@ -174,7 +174,7 @@ class JobQueue:
                             logger.info("The queue is paused. Waiting for resume.")
                             job.status = JobStatus.PENDING
                             while self._stop_event.is_set():
-                                time.sleep(1)
+                                await asyncio.sleep(1)
                         if self.queue[0] != job:
                             logger.info("Job no longer at front of queue. Breaking out of loop...")
                             job.status = JobStatus.PENDING
