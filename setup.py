@@ -11,7 +11,7 @@ def parse_requirements(filename):
 
 setup(
     name="comfy-tweaker",
-    version="0.1.0",
+    version="0.1.3",
     description="A ComfyUI companion app for generating massive amounts of images with precise, user-defined tweaks.",
     author="Nathan Halko",
     author_email="nathan.halko@gmail.com",

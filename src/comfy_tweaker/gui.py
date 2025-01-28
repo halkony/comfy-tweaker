@@ -11,14 +11,17 @@ import traceback
 from concurrent.futures import ThreadPoolExecutor
 from copy import copy
 
+import faulthandler
+faulthandler.enable()
+
 from loguru import logger
 
 import qdarktheme
 from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtCore import QAbstractTableModel, Qt, QTimer
 from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import QFileDialog, QMessageBox, QTableWidgetItem
-from qasync import QEventLoop, asyncSlot
+from PySide6.QtWidgets import QFileDialog, QMessageBox, QTableWidgetItem, QInputDialog
+from qasync import QEventLoop, asyncSlot, QApplication
 
 import comfy_tweaker
 from comfy_tweaker import JobQueue, JobStatus, Tweaks, Workflow
@@ -31,6 +34,16 @@ executor = ThreadPoolExecutor()
 
 from comfy_tweaker.comfyui import check_if_connected
 
+class JobQueueTask(QtCore.QRunnable):
+    def __init__(self, job_queue):
+        super().__init__()
+        self.job_queue = job_queue
+
+    def run(self):
+        if self.job_queue.mid_job:
+            self.job_queue.restart()
+        else:
+            asyncio.run(self.job_queue.start())
 
 class QTextEditLogger(logging.Handler):
     """Custom logging handler to redirect logs to a QTextEdit."""
@@ -239,8 +252,8 @@ class TweakerApp(QtWidgets.QMainWindow):
         self.update_environment_variables()
         self.job_queue = JobQueue()
         self.setAcceptDrops(True)
+        self.current_tweaks = Tweaks(name="No Tweaks")
         # self.ui.queueStopButton.setEnabled(False)
-
         self.drop_label = QtWidgets.QLabel(self)
         self.drop_label.setAlignment(Qt.AlignCenter)
         # self.drop_label.setPixmap(QtGui.QtPixmap(":/icons/plus_icon.png"))
@@ -262,7 +275,7 @@ class TweakerApp(QtWidgets.QMainWindow):
         # We'll change this back when we find a way to print to both console and our app
         # sys.stdout = StreamToLogger(logging.getLogger(), logging.INFO)
         log_format = "{time:MM/DD/YYYY HH:mm:ss} - {level} - {message}"
-        logger.add(log_handler, format=log_format)
+        logger.add(log_handler, format=log_format, level="INFO")
         self.ui.queueStartButton.clicked.connect(self.handle_start_queue)
         logger.info("Application successfully started")
 
@@ -342,19 +355,30 @@ class TweakerApp(QtWidgets.QMainWindow):
     def dragLeaveEvent(self, event):
         self.drop_label.hide()
 
-    def handle_start_queue(self):
-        self.start_queue()
+    @asyncSlot()
+    async def handle_start_queue(self):
+        await self.start_queue()
 
     def dropEvent(self, event):
         self.drop_label.hide()
+        yaml_files = []
         for url in event.mimeData().urls():
             file_path = url.toLocalFile()
             if file_path.lower().endswith(".png"):
                 self.load_image(file_path)
-                break
+                return
             if file_path.lower().endswith(".yaml"):
-                self.load_tweaks_file(file_path)
-                break
+                yaml_files.append(file_path)
+        
+        if len(yaml_files) == 1:
+            self.load_tweaks_file(yaml_files[0])
+        elif len(yaml_files) > 1:
+            self.load_yaml_batch(yaml_files)
+
+    def load_yaml_batch(self, yaml_files):
+        for yaml_file in yaml_files:
+            self.load_tweaks_file(yaml_file)
+            self.add_job()
 
     def clear_tweaks_file(self):
         self.ui.tweaksFileLineEdit.setText("")
@@ -458,6 +482,7 @@ class TweakerApp(QtWidgets.QMainWindow):
     #         self.ui.queueStartButton.setEnabled(False)
 
     def validate_comfyui_folder(self):
+        logger.debug("Validating comfyui folder...")
         comfyui_folder = self.settings.get("comfy_ui_folder")
         if not os.path.exists(os.path.join(comfyui_folder, "output")) or not os.path.exists(
             os.path.join(comfyui_folder, "input")
@@ -473,7 +498,6 @@ class TweakerApp(QtWidgets.QMainWindow):
         if not comfyui_folder:
             raise ValueError("ComfyUI folder is not set.")
 
-    @asyncSlot()
     async def start_queue(self):
         logger.info("Starting the job queue...")
         logger.info("Checking for comfyui connection...")
@@ -482,7 +506,7 @@ class TweakerApp(QtWidgets.QMainWindow):
             QMessageBox.critical(
                 self,
                 "ComfyUI Not Connected",
-                "Could not connect to comfyui server. Please check your comfyui server address in preferences.",
+                "Could not connect to comfyui server. Please check your cormfyui server address in preferences.",
             )
             return
         self.update_environment_variables()
@@ -497,10 +521,13 @@ class TweakerApp(QtWidgets.QMainWindow):
         self.starting_job_count = len(self.job_queue.queue)
         self.update_progress_bar()
         # self.ui.queueStopButton.setEnabled(True)
-        if self.job_queue.mid_job:
-            self.job_queue.restart()
-        else:
+        if not self.job_queue.mid_job:
+            logger.debug("Starting job queue...")
             await self.job_queue.start()
+        else:
+            logger.debug("Restarting job queue...")
+            self.job_queue.restart()
+
         # self.ui.queueStopButton.setEnabled(False)
 
     def update_progress_bar(self):
@@ -514,6 +541,7 @@ class TweakerApp(QtWidgets.QMainWindow):
             self.ui.progressBar.setValue(progress)
 
     def update_environment_variables(self):
+        logger.debug("Updating environment variables with UI settings...")
         os.environ["MODELS_FOLDER"] = self.settings.get("models_directory", "")
         os.environ["WILDCARDS_DIRECTORY"] = self.settings.get("wildcards_directory", "")
         if self.settings.get("comfy_ui_folder"):
@@ -597,8 +625,7 @@ class TweakerApp(QtWidgets.QMainWindow):
             self._last_length = len(filtered_jobs)
         self.update_progress_bar()
 
-    @asyncSlot()
-    async def add_job(self):
+    def add_job(self):
         try:
             # we validate here once so adding a bunch of jobs is quick
             self.job_queue.add(
@@ -627,10 +654,15 @@ class TweakerApp(QtWidgets.QMainWindow):
             self.current_tweaks = Tweaks(name="No Tweaks")
 
     def validate_tweaks(self):
+        if len(self.current_tweaks) == 0:
+            QMessageBox.critical(self, "Tweaks Error", "Tweaks file seems to be empty. No tweaks to validate.")
+            return
         try:
+            self.set_current_tweaks()
             self.current_workflow.validate(self.current_tweaks)
+            # TODO: We need a way to check how many changes were successfully validated
             QMessageBox.information(
-                self, "Success", "These tweaks are valid for this workflow."
+                self, "Success", f"Successfully validated {len(self.current_tweaks)} tweaks in this workflow."
             )
         except Exception as e:
             error_message = str(e)
@@ -705,26 +737,28 @@ class TweakerApp(QtWidgets.QMainWindow):
 
 async def main():
     """Main entry point for the application."""
-    try:
-        app = QtWidgets.QApplication(sys.argv)
+    app = QApplication(sys.argv)
 
-        loop = QEventLoop(app)
-        asyncio.set_event_loop(loop)
-        qdarktheme.setup_theme()
+    loop = QEventLoop(app)
+    asyncio.set_event_loop(loop)
+    qdarktheme.setup_theme()
 
-        window = TweakerApp()
-        window.show()
+    app_close_event = asyncio.Event()
+    app.aboutToQuit.connect(app_close_event.set)
 
-        with loop:
-            loop.run_forever()
-    except Exception as e:
-        traceback.print_exc()
+    window = TweakerApp()
+    window.show()
+
+    with loop:
+        loop.run_until_complete(app_close_event.wait())
 
 
 def entry():
     data_dir = user_data_dir("ComfyTweaker", "ComfyTweaker", roaming=True)
-    logger.add(os.path.join(data_dir, "logs/comfytweaker_{time}.log"))
-    logger.add(sys.stdout)
+    # File handler with DEBUG level
+    log_file_path = os.path.join(data_dir, "logs/comfytweaker_{time}.log")
+    logger.add(log_file_path, level="DEBUG")
+
     try:
         asyncio.run(main())
     except Exception as e:

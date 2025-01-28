@@ -11,3 +11,4 @@ filelock
 pillow
 websocket_client
 loguru
+websockets
