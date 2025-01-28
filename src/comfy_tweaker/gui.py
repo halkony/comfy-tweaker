@@ -11,8 +11,9 @@ import traceback
 from concurrent.futures import ThreadPoolExecutor
 from copy import copy
 
-import faulthandler
-faulthandler.enable()
+# this code must be disabled when compiling with pyinstaller
+# import faulthandler
+# faulthandler.enable()
 
 from loguru import logger
 
