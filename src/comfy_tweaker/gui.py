@@ -11,8 +11,8 @@ import traceback
 from concurrent.futures import ThreadPoolExecutor
 from copy import copy
 
-import faulthandler
-faulthandler.enable()
+# import faulthandler
+# faulthandler.enable()
 
 from loguru import logger
 
